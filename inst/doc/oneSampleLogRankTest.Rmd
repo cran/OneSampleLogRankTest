@@ -1,0 +1,145 @@
+---
+title: "oneSampleLogRankTest"
+author:
+- name: Divy Kangeyan
+  affiliation: 
+  - Kite Pharma, A Gilead Company
+  email: dkangeyan@kitepharma.com
+- name: Jin Xie
+  affiliation: 
+  - Kite Pharma, A Gilead Company
+  email: jin.xie3@gilead.com
+- name: Qinghua Song
+  affiliation: 
+  - Kite Pharma, A Gilead Company
+  email: qsong@kitepharma.com
+date: December 21, 2023
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{oneSampleLogRankTest}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+```{r setup}
+library(OneSampleLogRankTest)
+```
+
+## One sample log rank test
+Log-rank test is a popular hypothesis test used to compared survival distribution 
+between two groups. When there are no control or comparator group or obtaining
+such group is difficult, it is suitable to compare survival outcomes to a demographically-
+matched reference population. In this package we present existing methods to conduct
+such test named one sample log rank test.
+
+
+## One sample log rank test for large sample sizes
+
+Approximate one sample log rank test based on Chi-squared distribution can be applied
+to larger sample sizes (above 20 samples). *oneSampleLogRankTest* function would
+output Standardized Mortality Ratio (SMR), p-value and confidence interval around
+SMR. Statistical test is conducted based on Finkelstein et al. (2003) paper.
+
+
+```{r}
+data(dataSurv, package = "OneSampleLogRankTest")
+data(dataPop_2018_2021_race_sex_eth, package = "OneSampleLogRankTest")
+
+## approximate one sample log rank test
+oneSampleLogRankTest(dataSurv, dataPop_2018_2021_race_sex_eth,
+                     type = "approximate")
+
+
+```
+
+Mortality rate in the sample of interest is 1.531 times that in the general population and
+it is not significantly different from the general population.
+
+
+## Kaplan-Meier Curve Visualization
+
+Kaplan-Meier curve is a useful visualization tool to compared the survival outcome in
+the population of interest and the general population. Type of test would be 
+one of the argument in this function and the p-value would be displayed 
+accordingly.
+
+```{r, fig.height=6, fig.width=8}
+
+plotKM(dataSurv, dataPop_2018_2021_race_sex_eth, type = "approximate")
+
+```
+
+
+## Small-Sample Test
+
+For a small sample set and exact test would be applied as described in F D Liddel (1984) 
+paper. 
+
+```{r}
+
+data(dataSurv_small, package = "OneSampleLogRankTest")
+
+## exact test version of one sample log rank test for small sample size
+oneSampleLogRankTest(dataSurv_small, dataPop_2018_2021_race_sex_eth)
+
+```
+
+In the small data set, mortality ratio is significantly higher compared to the
+general population and it is about 3.3 fold higher.
+
+### Kaplan-Meier Curve Visualization
+
+```{r, fig.height=6, fig.width=8}
+
+plotKM(dataSurv_small, dataPop_2018_2021_race_sex_eth, type = "exact")
+
+```
+
+
+## Application of one sample log rank test in simulated clinical data
+
+A simulated data set with 500 patients were generated based on sex, race, age, 
+and survival time distribution based on real clinical trial data. Female to male ratio
+was 30:70 and there were four different race groups: Asian, Black, Other / More than one 
+race and White.
+
+This simulated clinical trial data will be compared against CDC Wonder database data
+to assess if the survival outcomes are comparable or significantly different between 
+this population and general population.
+
+### SMR and hypothesis testing
+
+```{r}
+data(simulated_clinical_data)
+
+oneSampleLogRankTest(simulated_clinical_data, dataPop_2018_2021_race_sex_eth,
+                     type = "approximate")
+
+```
+
+In the simulated clinical trial, the mortality ratio is around 9.42 times that of 
+general population and it is highly significant.
+
+
+### Visualization with K-M Curve
+
+```{r, fig.height=6, fig.width=8}
+plotKM(simulated_clinical_data, dataPop_2018_2021_race_sex_eth, type = "approximate")
+
+```
+
+Kaplan-Meir curve clearly shows that the simulated patient population is different
+from the general population.
+
+
+## Session Info
+```{r}
+sessionInfo()
+```
